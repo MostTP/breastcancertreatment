@@ -1,8 +1,8 @@
 import { useCallback } from 'react'
 import type { PatientProfile, RecommendResult, PredictResult, ApiError, ModelInfo } from '@/types'
 
-// const API_BASE = 'https://predicting-breast-cancer-t90u.onrender.com'
-const API_BASE = 'http://localhost:8000'
+const API_BASE = 'https://predicting-breast-cancer-t90u.onrender.com'
+// const API_BASE = 'http://localhost:8000'
 
 function buildPatientPayload(p: PatientProfile) {
   return {
