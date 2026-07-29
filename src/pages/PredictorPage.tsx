@@ -1,7 +1,6 @@
 import { useRef, useCallback } from 'react'
 import { useAppStore } from '@/hooks/useStore'
 import { usePrediction } from '@/hooks/useApi'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -10,8 +9,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import {
   Wand2, RotateCcw, UserRound, AlertTriangle,
   CircleCheck, CircleAlert, ArrowRight,
-  Loader2,
-  ShieldCheck
+  Loader2, ShieldCheck, Stethoscope, Dna, Pill, Activity
 } from 'lucide-react'
 import { cn, escHtml } from '@/lib/utils'
 import type { PatientProfile, TreatmentOption, RecommendResult, PredictResult } from '@/types'
@@ -31,10 +29,10 @@ function OptionButton({
     <button
       onClick={onClick}
       className={cn(
-        "option-btn py-3 px-4 rounded-xl border text-sm font-medium w-full",
+        "option-btn py-3 px-4 rounded-xl border text-sm font-medium w-full transition-all",
         active
-          ? "active bg-primary text-white border-primary"
-          : "bg-white text-text-secondary border-border-default hover:border-primary/50"
+          ? "active bg-primary text-white border-primary shadow-sm"
+          : "bg-white text-text-secondary border-border-default hover:border-primary/50 hover:bg-primary/5"
       )}
     >
       {children}
@@ -73,6 +71,20 @@ function SliderField({
         <span>{min}</span>
         <span>{max}</span>
       </div>
+    </div>
+  )
+}
+
+function SectionHeader({ icon: Icon, title, subtitle }: { icon: any; title: string; subtitle?: string }) {
+  return (
+    <div className="mb-6">
+      <div className="flex items-center gap-2 mb-1">
+        <div className="w-8 h-8 rounded-lg bg-primary-light flex items-center justify-center">
+          <Icon className="w-4 h-4 text-primary" />
+        </div>
+        <h3 className="font-semibold text-text-primary">{title}</h3>
+      </div>
+      {subtitle && <p className="text-xs text-text-muted ml-10">{subtitle}</p>}
     </div>
   )
 }
@@ -472,7 +484,7 @@ function LoadingSkeleton() {
 }
 
 export function PredictorPage() {
-  const { state, setField, setTab, setPredicting, setResults, loadPreset, resetProfile } = useAppStore()
+  const { state, setField, setPredicting, setResults, loadPreset, resetProfile } = useAppStore()
   const { runPrediction } = usePrediction()
   const resultsRef = useRef<HTMLDivElement>(null)
   const p = state.patientProfile
@@ -531,21 +543,16 @@ export function PredictorPage() {
         {/* Form */}
         <div className="lg:col-span-2">
           <Card className="overflow-hidden">
-            <Tabs value={state.activeTab} onValueChange={(v) => setTab(v as 'clinical' | 'tumor' | 'biomarkers' | 'treatment')}>
-              <TabsList className="w-full rounded-none border-b border-border-light bg-bg-warm h-auto p-0">
-                {(['clinical', 'tumor', 'biomarkers', 'treatment'] as const).map(t => (
-                  <TabsTrigger
-                    key={t}
-                    value={t}
-                    className="flex-1 py-4 rounded-none data-[state=active]:shadow-none data-[state=active]:bg-white data-[state=active]:text-text-primary data-[state=active]:font-semibold text-text-secondary"
-                  >
-                    {t.charAt(0).toUpperCase() + t.slice(1)}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+            <CardContent className="p-6 md:p-8 space-y-10">
 
-              <CardContent className="p-6 md:p-8">
-                <TabsContent value="clinical" className="mt-0 space-y-8">
+              {/* ── Clinical ── */}
+              <section>
+                <SectionHeader
+                  icon={Stethoscope}
+                  title="Clinical profile"
+                  subtitle="Demographics, staging, and tumour grade"
+                />
+                <div className="space-y-8">
                   <SliderField
                     label="Age at diagnosis"
                     value={p.age}
@@ -596,9 +603,19 @@ export function PredictorPage() {
                       ))}
                     </div>
                   </div>
-                </TabsContent>
+                </div>
+              </section>
 
-                <TabsContent value="tumor" className="mt-0 space-y-8">
+              <div className="border-t border-border-light" />
+
+              {/* ── Tumour ── */}
+              <section>
+                <SectionHeader
+                  icon={Activity}
+                  title="Tumour characteristics"
+                  subtitle="Size and nodal involvement"
+                />
+                <div className="space-y-8">
                   <SliderField
                     label="Tumour size"
                     value={p.tumorSize}
@@ -615,9 +632,19 @@ export function PredictorPage() {
                     displayValue={`${p.nodes}`}
                     onChange={(v) => handleSlider('nodes', v)}
                   />
-                </TabsContent>
+                </div>
+              </section>
 
-                <TabsContent value="biomarkers" className="mt-0 space-y-8">
+              <div className="border-t border-border-light" />
+
+              {/* ── Biomarkers ── */}
+              <section>
+                <SectionHeader
+                  icon={Dna}
+                  title="Biomarkers"
+                  subtitle="Receptor status drives systemic therapy eligibility"
+                />
+                <div className="space-y-8">
                   {([
                     { field: 'er' as const, label: 'ER Status' },
                     { field: 'pr' as const, label: 'PR Status' },
@@ -642,9 +669,19 @@ export function PredictorPage() {
                     <AlertTriangle className="w-4 h-4 text-primary inline mr-2" />
                     Receptor status drives the clinical plausibility filter. For example, hormone therapy is only considered for ER+ or PR+ patients.
                   </div>
-                </TabsContent>
+                </div>
+              </section>
 
-                <TabsContent value="treatment" className="mt-0 space-y-8">
+              <div className="border-t border-border-light" />
+
+              {/* ── Treatment ── */}
+              <section>
+                <SectionHeader
+                  icon={Pill}
+                  title="Current treatment"
+                  subtitle="Set the baseline the model will compare against"
+                />
+                <div className="space-y-8">
                   <p className="text-sm text-text-secondary">
                     Set the patient&apos;s <strong>current</strong> treatment. The model will compare all other combinations against this baseline.
                   </p>
@@ -668,29 +705,30 @@ export function PredictorPage() {
                       </div>
                     </div>
                   ))}
-                </TabsContent>
-
-                <div className="mt-8 pt-6 border-t border-border-light">
-                  <Button
-                    onClick={handlePredict}
-                    disabled={state.isPredicting}
-                    className="w-full btn-primary py-6 rounded-xl text-white font-medium flex items-center justify-center gap-3 text-base h-auto"
-                  >
-                    {state.isPredicting ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        <span>Calling API…</span>
-                      </>
-                    ) : (
-                      <>
-                        <Wand2 className="w-5 h-5" />
-                        <span>Predict optimal treatment</span>
-                      </>
-                    )}
-                  </Button>
                 </div>
-              </CardContent>
-            </Tabs>
+              </section>
+
+              {/* Predict button */}
+              <div className="pt-6 border-t border-border-light">
+                <Button
+                  onClick={handlePredict}
+                  disabled={state.isPredicting}
+                  className="w-full btn-primary py-6 rounded-xl text-white font-medium flex items-center justify-center gap-3 text-base h-auto"
+                >
+                  {state.isPredicting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Calling API…</span>
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="w-5 h-5" />
+                      <span>Predict optimal treatment</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </CardContent>
           </Card>
 
           {/* Results */}

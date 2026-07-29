@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Database, Bot, Filter, FlaskConical, Code, AlertTriangle } from 'lucide-react'
-import { cn, escHtml } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 
 const methods = [
   {

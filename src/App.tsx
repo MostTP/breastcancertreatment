@@ -1,9 +1,9 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Navigation } from '@/components/Navigation'
 import { HomePage } from '@/pages/HomePage'
 import { PredictorPage } from '@/pages/PredictorPage'
 import { ModelInfoPage } from '@/pages/ModelInfoPage'
 import { AboutPage } from '@/pages/AboutPage'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 function App() {
   return (

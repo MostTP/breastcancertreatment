@@ -7,7 +7,7 @@ import { Bot, Loader2, CircleX, ShieldCheck } from 'lucide-react'
 import { cn, escHtml } from '@/lib/utils'
 import type { ModelInfo } from '@/types'
 
-function StatCard({ label, value }: { label: string; value: string }) {
+function StatCard({ label, value }: { label: string | number; value: string | number }) {
   return (
     <div className="bg-bg-warm rounded-xl p-4 text-center stat-card">
       <div className="text-xs text-text-muted mb-1">{label}</div>
@@ -21,7 +21,7 @@ function ModelContent({ info }: { info: ModelInfo }) {
   const metrics = info.metrics || {}
   const disc = info.disclaimer || {}
   const testM = metrics.test_metrics || {}
-  const cm = testM.confusion_matrix || {}
+  const cm = testM.confusion_matrix || { true_positive: '', true_negative: '', false_positive: '', false_negative: '' }
   const gridSearch = metrics.grid_search || {}
 
   return (
